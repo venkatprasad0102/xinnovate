@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validator Login</title>
+    <link rel="stylesheet" href="../static/validator_login_page.css">
+</head>
+<body>
+    <h1>Validator Login</h1>
+
+    <form id="login">
+        <input type="text" id="username" placeholder="Username" required><br>
+        <input type="password" id="password" placeholder="Password" required><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <p>Don't have an account? <a href="validator_signup.html">Sign Up</a></p>
+
+    <script>
+        document.getElementById('login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const storedUsername = localStorage.getItem('validator_username');
+            const storedPassword = localStorage.getItem('validator_password');
+            if (username === storedUsername && password === storedPassword) {
+                alert('Login Successful');
+                window.location.href = 'validator_dashboard.html'; // Redirect to dashboard or desired page
+            } else {
+                alert('Invalid username or password');
+            }
+        });
+    </script>
+</body>
+</html>

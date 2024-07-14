@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor's Panel - Arogya Seva DApp</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Arogya Seva DApp</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="patient.html">Add Patient</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="doctor.html">Doctor's Panel</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="patientView.html">View Status</a>
+                    </li>
+					<li class="nav-item">
+                        <a class="nav-link" href="./templates/index.html">Claim Insurance</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main class="container mt-4">
+        <h2>Doctor's Panel</h2>
+        <form id="search-patient-form">
+            <div class="form-group">
+                <label for="patientId">Patient ID:</label>
+                <input type="text" class="form-control" id="patientId" name="patientId" required>
+            </div>
+            <button type="button" class="btn btn-primary" id="search-button">Search</button>
+        </form>
+
+        <div id="patient-details" class="mt-4">
+            <!-- Patient details will be displayed here -->
+        </div>
+    </main>
+    <footer class="mt-4">
+        
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.5.0/dist/web3.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+            } else if (window.web3) {
+                window.web3 = new Web3(window.web3.currentProvider);
+            } else {
+                console.error('Non-Ethereum browser detected. Install MetaMask.');
+            }
+
+            const contractAddress = '0xa6fff3517Eb683ca7A1C3C0C3bb36d010Dd38065'; // Insert your contract address here
+            const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_comments",
+				"type": "string"
+			}
+		],
+		"name": "addComments",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_phone",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_gender",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_dob",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_bloodgroup",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_comments",
+				"type": "string"
+			}
+		],
+		"name": "addPatient",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "comments",
+				"type": "string"
+			}
+		],
+		"name": "CommentsAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "phone",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "gender",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "dob",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "bloodgroup",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "comments",
+				"type": "string"
+			}
+		],
+		"name": "PatientAdded",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "patientCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "patients",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "phone",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "gender",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dob",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "bloodgroup",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "comments",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "viewPatient",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "phone",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "gender",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dob",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "bloodgroup",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "comments",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+            const healthcareContract = new web3.eth.Contract(contractABI, contractAddress);
+
+            const searchForm = document.getElementById('search-patient-form');
+            const searchButton = document.getElementById('search-button');
+            const patientDetails = document.getElementById('patient-details');
+
+            searchButton.addEventListener('click', async () => {
+                const patientId = searchForm.patientId.value;
+                if (patientId) {
+                    try {
+                        const patient = await healthcareContract.methods.viewPatient(patientId).call();
+                        displayPatientDetails(patient);
+                    } catch (error) {
+                        console.error('Error fetching patient details:', error);
+                        displayErrorMessage('Patient not found. Please check the patient ID.');
+                    }
+                } else {
+                    displayErrorMessage('Please enter a patient ID.');
+                }
+            });
+
+            function displayPatientDetails(patient) {
+                const patientDetailsHTML = `
+                    <h3>Patient Details</h3>
+                    <form id="edit-patient-form">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="name" name="name" value="${patient.name}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone:</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="${patient.phone}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender:</label>
+                            <input type="text" class="form-control" id="gender" name="gender" value="${patient.gender}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Date of Birth:</label>
+                            <input type="date" class="form-control" id="dob" name="dob" value="${patient.dob}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodgroup">Blood Group:</label>
+                            <input type="text" class="form-control" id="bloodgroup" name="bloodgroup" value="${patient.bloodgroup}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="comments">Diagnosis:</label>
+                            <textarea class="form-control" id="comments" name="comments">${patient.comments}</textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="update-button">Update</button>
+                    </form>
+                `;
+                patientDetails.innerHTML = patientDetailsHTML;
+
+                const updateButton = document.getElementById('update-button');
+                updateButton.addEventListener('click', async () => {
+                    const updatedComments = document.getElementById('comments').value;
+                    const patientId = searchForm.patientId.value;
+                    try {
+                        const accounts = await web3.eth.getAccounts();
+                        await healthcareContract.methods.addComments(patientId, updatedComments).send({ from: accounts[0] });
+                        displaySuccessMessage('Comments updated successfully.');
+                    } catch (error) {
+                        console.error('Error updating comments:', error);
+                        displayErrorMessage('Failed to update comments. Please try again.');
+                    }
+                });
+            }
+
+            function displayErrorMessage(message) {
+                const errorMessageHTML = `<p class="text-danger">${message}</p>`;
+                patientDetails.innerHTML = errorMessageHTML;
+            }
+
+            function displaySuccessMessage(message) {
+                const successMessageHTML = `<p class="text-success">${message}</p>`;
+                patientDetails.innerHTML = successMessageHTML;
+            }
+        });
+    </script>
+</body>
+</html>
